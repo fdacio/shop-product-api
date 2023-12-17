@@ -2,6 +2,7 @@ package br.com.daciosoftware.shop.product.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,31 +16,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.daciosoftware.shop.product.dto.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/product")
 public class ProductController {
 
-	private final ProductService productService;
+	@Autowired
+	private ProductService productService;
 	
 	@GetMapping
 	public List<ProductDTO> getAll() {
-		return productService.getAll();
+		return productService.findAll();
 	}
 	
-	@GetMapping("/category/{category}")
-	public List<ProductDTO> getProductByCategory(@PathVariable Long categoryId) {
-		return productService.getProductByCategoryId(categoryId);
+	@GetMapping("/{id}")
+	public ProductDTO findById(@PathVariable Long id) {
+		return productService.findById(id);
 	}
 	
-	@GetMapping("/{productIdentifier}")
+	@GetMapping("/category/{categoryId}")
+	public List<ProductDTO> findProductsByCategory(@PathVariable Long categoryId) {
+		return productService.findProductsByCategory(categoryId);
+	}
+	
+	@GetMapping("/{productIdentifier}/identifier")
 	public ProductDTO findByIdentifier(@PathVariable String productIdentifier) {
-		return productService.getProductByProductIdentifier(productIdentifier);
+		return productService.findProductByProductIdentifier(productIdentifier);
 	}
 	
 	@PostMapping
@@ -55,13 +60,13 @@ public class ProductController {
 	}
 	
 	@PatchMapping("/{id}")
-	public ProductDTO editProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
-		return productService.editProduct(id, productDTO);
+	public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
+		return productService.update(id, productDTO);
 	}
 	
 	@GetMapping("/pageable")
-	public Page<ProductDTO> getAllPage(Pageable pageable) {
-		return productService.getAllPage(pageable);
+	public Page<ProductDTO> findAllPageable(Pageable pageable) {
+		return productService.findAllPageable(pageable);
 	}
 	
 }

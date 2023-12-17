@@ -4,18 +4,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.daciosoftware.shop.product.dto.CategoryDTO;
-import br.com.daciosoftware.shop.product.entity.Category;
+import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.entity.Category;
 import br.com.daciosoftware.shop.product.repository.CategoryRepository;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class CategoryService {
 
-	private final CategoryRepository categoryRepository;
+	@Autowired
+	private CategoryRepository categoryRepository;
 	
 	public List<CategoryDTO> findAll() {
 		List<Category> categorias = categoryRepository.findAll();
