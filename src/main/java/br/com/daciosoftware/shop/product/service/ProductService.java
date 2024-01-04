@@ -99,10 +99,15 @@ public class ProductService {
 	}
 
 	public Page<ProductDTO> findAllPageable(Pageable pageable) {
-		Page<Product> usuarios = productRepository.findAll(pageable);
-		return usuarios.map(ProductDTO::convert);
+		Page<Product> produtos = productRepository.findAll(pageable);
+		return produtos.map(ProductDTO::convert);
 	}
 
+	public List<ProductDTO> findByNome(String name) {
+		List<Product> produtos = productRepository.findByNomeContainingIgnoreCase(name);
+		return produtos.stream().map(ProductDTO::convert).collect(Collectors.toList());
+	}
+	
 	private Category getCategory(ProductDTO productDTO) {
 		Long categoryId = productDTO.getCategory().getId();
 		return categoryService.getById(categoryId);

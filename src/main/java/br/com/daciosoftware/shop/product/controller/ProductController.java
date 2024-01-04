@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,6 +46,11 @@ public class ProductController {
 	@GetMapping("/{productIdentifier}/identifier")
 	public ProductDTO findByIdentifier(@PathVariable String productIdentifier) {
 		return productService.findProductByProductIdentifier(productIdentifier);
+	}
+	
+	@GetMapping("/search")
+	public List<ProductDTO> findByNone(@RequestParam(name = "nome", required = true) String nome) {
+		return productService.findByNome(nome);
 	}
 	
 	@PostMapping
