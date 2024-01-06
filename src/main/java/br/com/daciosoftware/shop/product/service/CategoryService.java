@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.daciosoftware.shop.exceptions.CategoryNotFoundException;
 import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
 import br.com.daciosoftware.shop.modelos.entity.Category;
 import br.com.daciosoftware.shop.product.repository.CategoryRepository;
@@ -30,7 +31,7 @@ public class CategoryService {
 		if (category.isPresent()) {
 			return CategoryDTO.convert(category.get()); 
 		} else {
-			throw new RuntimeException("Categoria não encontrada");
+			throw new CategoryNotFoundException();
 		}
 	}
 	
@@ -39,7 +40,7 @@ public class CategoryService {
 		if (category.isPresent()) {
 			return category.get(); 
 		} else {
-			throw new RuntimeException("Categoria não encontrada");
+			throw new RuntimeException("Categoria não encontrada#######");
 		}
 	}
 }

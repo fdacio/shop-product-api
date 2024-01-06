@@ -10,9 +10,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import br.com.daciosoftware.shop.exceptions.CategoryNotFoundException;
+import br.com.daciosoftware.shop.exceptions.ProductNotFoundException;
+import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
 import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
 import br.com.daciosoftware.shop.modelos.entity.Category;
 import br.com.daciosoftware.shop.modelos.entity.Product;
+import br.com.daciosoftware.shop.product.repository.CategoryRepository;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
 
 @Service
@@ -21,7 +25,8 @@ public class ProductService {
 	@Autowired
 	private ProductRepository productRepository;
 	@Autowired
-	private CategoryService categoryService;
+	private CategoryRepository categoryRepository;
+	
 
 	public List<ProductDTO> findAll() {
 		List<Product> produtos = productRepository.findAll();
@@ -33,7 +38,7 @@ public class ProductService {
 		if (product.isPresent()) {
 			return ProductDTO.convert(product.get());
 		} else {
-			throw new RuntimeException("Produto não encontrado");
+			throw new ProductNotFoundException();
 		}
 	}
 
@@ -47,14 +52,20 @@ public class ProductService {
 		if (product != null) {
 			return ProductDTO.convert(product);
 		} else {
-			throw new RuntimeException("Produto não encontrado");
+			throw new ProductNotFoundException();
 		}
 	}
 
 	public ProductDTO save(@RequestBody ProductDTO productDTO) {
+		Optional<Category> categoryOptional = categoryRepository.findById(productDTO.getCategory().getId());
+		if (!categoryOptional.isPresent()) {
+			throw new CategoryNotFoundException();
+		}
+		productDTO.setCategory(CategoryDTO.convert(categoryOptional.get()));
+		
 		Product product = Product.convert(productDTO);
-		product.setCategory(getCategory(productDTO));
-		return ProductDTO.convert(productRepository.save(product));
+		product = productRepository.save(product);
+		return ProductDTO.convert(product);
 	}
 
 	public void delete(Long productId) {
@@ -62,7 +73,7 @@ public class ProductService {
 		if (product.isPresent()) {
 			productRepository.delete(product.get());
 		} else {
-			throw new RuntimeException("Produto não encontrado");
+			throw new ProductNotFoundException();
 		}
 	}
 
@@ -85,16 +96,14 @@ public class ProductService {
 			if ((productDTO.getProductIdentifier() != null) && !(productDTO.getProductIdentifier().equals(product.getProductIdentifier()))) {
 				product.setProductIdentifier(productDTO.getProductIdentifier());
 			}
-			if ((productDTO.getCategory() != null)
-					&& !(productDTO.getCategory().getId().equals(product.getCategory().getId()))) {
-				Category category = getCategory(productDTO);
-				product.setCategory(category);
+			if ((productDTO.getCategory() != null)	&& !(productDTO.getCategory().getId().equals(product.getCategory().getId()))) {
+				product.setCategory(Category.convert(productDTO.getCategory()));
 			}
 			product = productRepository.save(product);
 			return ProductDTO.convert(product);
 
 		} else {
-			throw new RuntimeException("Produto não encontrado");
+			throw new ProductNotFoundException();
 		}
 	}
 
@@ -108,9 +117,4 @@ public class ProductService {
 		return produtos.stream().map(ProductDTO::convert).collect(Collectors.toList());
 	}
 	
-	private Category getCategory(ProductDTO productDTO) {
-		Long categoryId = productDTO.getCategory().getId();
-		return categoryService.getById(categoryId);
-	}
-
 }
