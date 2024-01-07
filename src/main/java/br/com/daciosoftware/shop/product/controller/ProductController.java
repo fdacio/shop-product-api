@@ -55,7 +55,7 @@ public class ProductController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ProductDTO newProduct(@RequestBody @Valid ProductDTO productDTO) {
+	public ProductDTO save(@RequestBody @Valid ProductDTO productDTO) {
 		return productService.save(productDTO);
 	}
 	

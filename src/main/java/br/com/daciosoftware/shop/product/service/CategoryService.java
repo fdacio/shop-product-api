@@ -17,30 +17,25 @@ public class CategoryService {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
-	
+
 	public List<CategoryDTO> findAll() {
 		List<Category> categorias = categoryRepository.findAll();
-		return categorias
-				.stream()
-				.map(CategoryDTO::convert)
-				.collect(Collectors.toList());
+		return categorias.stream().map(CategoryDTO::convert).collect(Collectors.toList());
 	}
-	
+
 	public CategoryDTO findById(Long id) {
-		Optional<Category> category = categoryRepository.findById(id);
-		if (category.isPresent()) {
-			return CategoryDTO.convert(category.get()); 
-		} else {
-			throw new CategoryNotFoundException();
-		}
+		Optional<Category> categoryOptional = categoryRepository.findById(id);
+		categoryOptional.orElseThrow(CategoryNotFoundException::new);
+		return CategoryDTO.convert(categoryOptional.get());
 	}
-	
-	public Category getById(Long id) {
-		Optional<Category> category = categoryRepository.findById(id);
-		if (category.isPresent()) {
-			return category.get(); 
-		} else {
-			throw new RuntimeException("Categoria não encontrada#######");
-		}
+
+	public CategoryDTO save(CategoryDTO categoryDTO) {
+		Category category = Category.convert(categoryDTO);
+		return CategoryDTO.convert(categoryRepository.save(category));
 	}
+
+	public void delete(Long id) {
+		categoryRepository.delete(Category.convert(findById(id)));
+	}
+
 }
