@@ -55,7 +55,7 @@ public class ProductController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ProductDTO newProduct(@RequestBody @Valid ProductDTO productDTO) {
+	public ProductDTO save(@Valid @RequestBody ProductDTO productDTO) {
 		return productService.save(productDTO);
 	}
 	
@@ -66,7 +66,7 @@ public class ProductController {
 	}
 	
 	@PatchMapping("/{id}")
-	public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
+	public ProductDTO update(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
 		return productService.update(id, productDTO);
 	}
 	
