@@ -1,12 +1,32 @@
 package br.com.daciosoftware.shop.product.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Font.FontFamily;
+import com.itextpdf.text.Font.FontStyle;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import br.com.daciosoftware.shop.exceptions.ProductNotFoundException;
 import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
@@ -24,36 +44,25 @@ public class ProductService {
 	private CategoryService categoryService;
 
 	public List<ProductDTO> findAll() {
-		return productRepository.findAll()
-				.stream()
-				.map(ProductDTO::convert)
-				.collect(Collectors.toList());
+		return productRepository.findAll().stream().map(ProductDTO::convert).collect(Collectors.toList());
 	}
 
-	
 	public List<ProductDTO> findByNome(String name) {
-		return productRepository.findByNomeContainingIgnoreCase(name)
-				.stream()
-				.map(ProductDTO::convert)
+		return productRepository.findByNomeContainingIgnoreCase(name).stream().map(ProductDTO::convert)
 				.collect(Collectors.toList());
 	}
 
 	public ProductDTO findById(Long id) {
-		return productRepository.findById(id)
-				.map(ProductDTO::convert)
-				.orElseThrow(ProductNotFoundException::new);
+		return productRepository.findById(id).map(ProductDTO::convert).orElseThrow(ProductNotFoundException::new);
 	}
 
 	public ProductDTO findProductByProductIdentifier(String productIdentifie) {
-		return productRepository.findByProductIdentifier(productIdentifie)
-				.map(ProductDTO::convert)
+		return productRepository.findByProductIdentifier(productIdentifie).map(ProductDTO::convert)
 				.orElseThrow(ProductNotFoundException::new);
 	}
 
 	public List<ProductDTO> findProductsByCategory(Long categoryId) {
-		return productRepository.findProductsByCategory(categoryId)
-				.stream()
-				.map(ProductDTO::convert)
+		return productRepository.findProductsByCategory(categoryId).stream().map(ProductDTO::convert)
 				.collect(Collectors.toList());
 	}
 
@@ -97,4 +106,108 @@ public class ProductService {
 		return ProductDTO.convert(product);
 	}
 
+	public List<ProductDTO> findProductsReportPdf(ProductDTO productDTO) {
+
+		List<Product> products = productRepository.findAll().stream().toList();
+
+		if (productDTO.getCategory() != null) {
+			products = products
+					.stream()
+					.filter(p -> p.getCategory().getId().equals(productDTO.getCategory().getId()))
+					.toList();
+		}
+
+		return products.stream().map(ProductDTO::convert).collect(Collectors.toList());
+	}
+
+	public ByteArrayOutputStream geraReportPdf(List<ProductDTO> products) throws DocumentException, URISyntaxException, IOException {
+
+		Document document = new Document();
+		document.setMargins(20, 20, 30, 30);
+	
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		
+		PdfWriter.getInstance(document, outputStream);
+		
+		document.open();
+		
+		addHeaderReport(document);
+
+		PdfPTable table = new PdfPTable(4);
+		table.setWidthPercentage(100);
+		float widths[] = {35, 35, 15, 15};
+		table.setWidths(widths);
+		
+		addTableHeader(table);
+		addRows(table, products);
+		addCustomRows(table);
+		document.add(table);
+		
+		document.close();
+		
+		return outputStream;
+	}
+	
+	private void addHeaderReport(Document document) throws URISyntaxException, MalformedURLException, IOException, DocumentException {
+
+		Path path = Paths.get(ClassLoader.getSystemResource("static/logo.png").toURI());
+		Image img = Image.getInstance(path.toAbsolutePath().toString());
+		img.scalePercent(20);
+		
+		PdfPTable tableHeader = new PdfPTable(3);
+		tableHeader.setWidthPercentage(100);
+		float widths[] = {15, 70, 15};
+		tableHeader.setWidths(widths);
+		
+		PdfPCell pdfPCellImg = new PdfPCell(img);
+		pdfPCellImg.setBorderWidth(0);
+
+		Font fontTitle = new Font(FontFamily.HELVETICA, 18, FontStyle.BOLD.ordinal());
+		PdfPCell pdfPCellTitulo = new PdfPCell(new Phrase("Relatório de Produtos", fontTitle));
+		pdfPCellTitulo.setBorderWidth(0);
+		pdfPCellTitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
+		pdfPCellTitulo.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		
+		tableHeader.addCell(pdfPCellImg);
+		tableHeader.addCell(pdfPCellTitulo);
+		PdfPCell pdfPCell = new PdfPCell();
+		pdfPCell.setBorderWidth(0);
+		tableHeader.addCell(pdfPCell);
+		
+		document.add(tableHeader);
+
+	}
+
+	private void addTableHeader(PdfPTable table) {
+		Stream.of("Nome", "Descriçao", "Categoria", "Preço").forEach(columnTitle -> {
+			PdfPCell header = new PdfPCell();
+			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+			header.setBorderWidth(1);
+			header.setPhrase(new Phrase(columnTitle));
+			table.addCell(header);
+		});
+	}
+
+	private void addRows(PdfPTable table, List<ProductDTO> products) {
+		products.forEach(p -> {
+			table.addCell(p.getNome());
+			table.addCell(p.getDescricao());
+			table.addCell(p.getCategory().getNome());
+			PdfPCell pdfPCellPreco = new PdfPCell(new Phrase(String.format("R$ %.2f", p.getPreco())));
+			pdfPCellPreco.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			table.addCell(pdfPCellPreco);
+		});
+	}
+
+	private void addCustomRows(PdfPTable table)  {
+
+
+		PdfPCell horizontalAlignCell = new PdfPCell(new Phrase("Total"));
+		horizontalAlignCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(horizontalAlignCell);
+
+		PdfPCell verticalAlignCell = new PdfPCell(new Phrase(""));
+		verticalAlignCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+		table.addCell(verticalAlignCell);
+	}
 }
