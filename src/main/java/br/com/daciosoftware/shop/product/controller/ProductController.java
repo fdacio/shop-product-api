@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.itextpdf.text.DocumentException;
 
 import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
 import jakarta.validation.Valid;
 
@@ -84,7 +85,7 @@ public class ProductController {
 	}
 	
 	@PostMapping("/report-pdf")
-	public ResponseEntity<?> reportPdf(@RequestBody ProductDTO productDTO) {
+	public ResponseEntity<?> reportPdf(@RequestBody ProductReportRequestDTO productDTO) {
 		
 		List<ProductDTO> products = productService.findProductsReportPdf(productDTO);
 		

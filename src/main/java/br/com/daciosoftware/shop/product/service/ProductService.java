@@ -31,6 +31,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import br.com.daciosoftware.shop.exceptions.ProductNotFoundException;
 import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
 import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
 import br.com.daciosoftware.shop.modelos.entity.Category;
 import br.com.daciosoftware.shop.modelos.entity.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
@@ -40,6 +41,7 @@ public class ProductService {
 
 	@Autowired
 	private ProductRepository productRepository;
+	
 	@Autowired
 	private CategoryService categoryService;
 
@@ -106,15 +108,31 @@ public class ProductService {
 		return ProductDTO.convert(product);
 	}
 
-	public List<ProductDTO> findProductsReportPdf(ProductDTO productDTO) {
+	public List<ProductDTO> findProductsReportPdf(ProductReportRequestDTO productDTO) {
 
-		List<Product> products = productRepository.findAll().stream().toList();
+		List<Product> products = productRepository.findAll();
 
 		if (productDTO.getCategory() != null) {
 			products = products
 					.stream()
 					.filter(p -> p.getCategory().getId().equals(productDTO.getCategory().getId()))
 					.toList();
+		}
+		
+		if (productDTO.getPrecoInicial() != null) {
+			products = products
+					.stream()
+					.filter(p -> p.getPreco() >= productDTO.getPrecoInicial())
+					.toList();
+			
+		}
+		
+		if (productDTO.getPrecoFinal() != null) {
+			products = products
+					.stream()
+					.filter(p -> p.getPreco() <= productDTO.getPrecoFinal())
+					.toList();
+			
 		}
 
 		return products.stream().map(ProductDTO::convert).collect(Collectors.toList());
@@ -140,7 +158,7 @@ public class ProductService {
 		
 		addTableHeader(table);
 		addRows(table, products);
-		addCustomRows(table);
+		addFooterRows(table, products);
 		document.add(table);
 		
 		document.close();
@@ -179,11 +197,12 @@ public class ProductService {
 	}
 
 	private void addTableHeader(PdfPTable table) {
+		Font font = new Font(FontFamily.HELVETICA, 12, FontStyle.BOLD.ordinal());
 		Stream.of("Nome", "Descriçao", "Categoria", "Preço").forEach(columnTitle -> {
 			PdfPCell header = new PdfPCell();
 			header.setBackgroundColor(BaseColor.LIGHT_GRAY);
 			header.setBorderWidth(1);
-			header.setPhrase(new Phrase(columnTitle));
+			header.setPhrase(new Phrase(columnTitle, font));
 			table.addCell(header);
 		});
 	}
@@ -193,21 +212,27 @@ public class ProductService {
 			table.addCell(p.getNome());
 			table.addCell(p.getDescricao());
 			table.addCell(p.getCategory().getNome());
-			PdfPCell pdfPCellPreco = new PdfPCell(new Phrase(String.format("R$ %.2f", p.getPreco())));
+			PdfPCell pdfPCellPreco = new PdfPCell(new Phrase(String.format("R$ %,.2f", p.getPreco())));
 			pdfPCellPreco.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(pdfPCellPreco);
 		});
 	}
 
-	private void addCustomRows(PdfPTable table)  {
+	private void addFooterRows(PdfPTable table, List<ProductDTO> products)  {
+	
+		Font font = new Font(FontFamily.HELVETICA, 12, FontStyle.BOLD.ordinal());
+		
+		PdfPCell pdfPCellLabelTotal = new PdfPCell(new Phrase("Total", font));
+		pdfPCellLabelTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		table.addCell(new PdfPCell());
+		table.addCell(new PdfPCell());
+		table.addCell(pdfPCellLabelTotal);
+		
+		Float valorTotal = products.stream().map(ProductDTO::getPreco).reduce((float) 0, Float::sum);
 
-
-		PdfPCell horizontalAlignCell = new PdfPCell(new Phrase("Total"));
-		horizontalAlignCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(horizontalAlignCell);
-
-		PdfPCell verticalAlignCell = new PdfPCell(new Phrase(""));
-		verticalAlignCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
-		table.addCell(verticalAlignCell);
+		PdfPCell pdfPCellValorTotal = new PdfPCell(new Phrase(String.format("R$ %,.2f", valorTotal), font));
+		pdfPCellValorTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		table.addCell(pdfPCellValorTotal);
 	}
+
 }
