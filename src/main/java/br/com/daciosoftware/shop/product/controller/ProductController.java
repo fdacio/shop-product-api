@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.itextpdf.text.DocumentException;
 
-import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.product.dto.ProductDTO;
+import br.com.daciosoftware.shop.product.dto.ProductReportRequestDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
 import jakarta.validation.Valid;
 
@@ -49,7 +49,7 @@ public class ProductController {
 	
 	@GetMapping("/category/{categoryId}")
 	public List<ProductDTO> findProductsByCategory(@PathVariable Long categoryId) {
-		return productService.findProductsByCategory(categoryId);
+		return productService.findByCategory(categoryId);
 	}
 	
 	@GetMapping("/{productIdentifier}/identifier")
@@ -74,6 +74,12 @@ public class ProductController {
 		productService.delete(id);
 	}
 	
+	@DeleteMapping("/maior-que/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteMaiorQue (@PathVariable Long id) {
+		productService.deleteMaiorQue(id);
+	}
+
 	@PatchMapping("/{id}")
 	public ProductDTO update(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
 		return productService.update(id, productDTO);
@@ -100,7 +106,7 @@ public class ProductController {
 	        return new ResponseEntity<>(pdfStream.toByteArray(), headers, HttpStatus.OK);
 	        
 		} catch (DocumentException | IOException | URISyntaxException e) {
-
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
 		}	
 		

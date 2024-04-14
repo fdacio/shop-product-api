@@ -7,12 +7,14 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.itextpdf.text.BaseColor;
@@ -28,12 +30,13 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import br.com.daciosoftware.shop.exceptions.ProductIdentifieViolationException;
 import br.com.daciosoftware.shop.exceptions.ProductNotFoundException;
-import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
-import br.com.daciosoftware.shop.modelos.entity.Category;
-import br.com.daciosoftware.shop.modelos.entity.Product;
+import br.com.daciosoftware.shop.product.dto.CategoryDTO;
+import br.com.daciosoftware.shop.product.dto.ProductDTO;
+import br.com.daciosoftware.shop.product.dto.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.product.entity.Category;
+import br.com.daciosoftware.shop.product.entity.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
 
 @Service
@@ -63,8 +66,16 @@ public class ProductService {
 				.orElseThrow(ProductNotFoundException::new);
 	}
 
-	public List<ProductDTO> findProductsByCategory(Long categoryId) {
-		return productRepository.findProductsByCategory(categoryId).stream().map(ProductDTO::convert)
+	public boolean checkIdentifierExistInUpdate(String productIdentifie, Product product) {
+		
+		Optional<Product> productOther = productRepository.findByProductIdentifier(productIdentifie);
+		
+		return (productOther.isPresent() && product.getId() != productOther.get().getId());
+	}
+	
+	public List<ProductDTO> findByCategory(Long categoryId) {
+		CategoryDTO category = categoryService.findById(categoryId);		
+		return productRepository.findByCategory(Category.convert(category)).stream().map(ProductDTO::convert)
 				.collect(Collectors.toList());
 	}
 
@@ -84,8 +95,15 @@ public class ProductService {
 		productRepository.delete(Product.convert(findById(productId)));
 	}
 
+	public void deleteMaiorQue(Long productId) {
+		List<Product> productsDelete = productRepository.findByIdGreaterThan(productId);
+		productRepository.deleteAllInBatch(productsDelete);
+	}
+	
 	public ProductDTO update(Long productId, ProductDTO productDTO) {
+		
 		Product product = Product.convert(findById(productId));
+		
 		if ((productDTO.getNome() != null) && !(productDTO.getNome().equals(product.getNome()))) {
 			product.setNome(productDTO.getNome());
 		}
@@ -97,20 +115,28 @@ public class ProductService {
 		}
 		if ((productDTO.getProductIdentifier() != null)
 				&& !(productDTO.getProductIdentifier().equals(product.getProductIdentifier()))) {
+			
+			if (checkIdentifierExistInUpdate(productDTO.getProductIdentifier(), product)) { 
+				throw new ProductIdentifieViolationException();
+			}
+			
 			product.setProductIdentifier(productDTO.getProductIdentifier());
+			
 		}
 		if ((productDTO.getCategory() != null)
 				&& !(productDTO.getCategory().getId().equals(product.getCategory().getId()))) {
 			CategoryDTO categoryDTO = categoryService.findById(productDTO.getCategory().getId());
 			product.setCategory(Category.convert(categoryDTO));
 		}
+		
 		product = productRepository.save(product);
+		
 		return ProductDTO.convert(product);
 	}
 
 	public List<ProductDTO> findProductsReportPdf(ProductReportRequestDTO productDTO) {
 
-		List<Product> products = productRepository.findAll();
+		List<Product> products = productRepository.findAll(Sort.by("nome")).stream().toList();
 
 		if (productDTO.getCategory() != null) {
 			products = products
@@ -218,14 +244,15 @@ public class ProductService {
 		});
 	}
 
-	private void addFooterRows(PdfPTable table, List<ProductDTO> products)  {
+	private void addFooterRows(PdfPTable table, List<ProductDTO> products) {
 	
 		Font font = new Font(FontFamily.HELVETICA, 12, FontStyle.BOLD.ordinal());
 		
-		PdfPCell pdfPCellLabelTotal = new PdfPCell(new Phrase("Total", font));
+		PdfPCell pdfPCellLabelTotal = new PdfPCell(new Phrase("Total: ", font));
 		pdfPCellLabelTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
-		table.addCell(new PdfPCell());
-		table.addCell(new PdfPCell());
+		PdfPCell cell1 = new PdfPCell();
+		table.addCell(cell1);
+		table.addCell(cell1);
 		table.addCell(pdfPCellLabelTotal);
 		
 		Float valorTotal = products.stream().map(ProductDTO::getPreco).reduce((float) 0, Float::sum);
