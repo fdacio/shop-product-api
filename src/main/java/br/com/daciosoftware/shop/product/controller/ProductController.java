@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.itextpdf.text.DocumentException;
 
-import br.com.daciosoftware.shop.product.dto.ProductDTO;
-import br.com.daciosoftware.shop.product.dto.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
 import jakarta.validation.Valid;
 
@@ -81,7 +81,7 @@ public class ProductController {
 	}
 
 	@PatchMapping("/{id}")
-	public ProductDTO update(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
+	public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
 		return productService.update(id, productDTO);
 	}
 	

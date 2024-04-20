@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,13 +31,13 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import br.com.daciosoftware.shop.exceptions.ProductIdentifieViolationException;
-import br.com.daciosoftware.shop.exceptions.ProductNotFoundException;
-import br.com.daciosoftware.shop.product.dto.CategoryDTO;
-import br.com.daciosoftware.shop.product.dto.ProductDTO;
-import br.com.daciosoftware.shop.product.dto.ProductReportRequestDTO;
-import br.com.daciosoftware.shop.product.entity.Category;
-import br.com.daciosoftware.shop.product.entity.Product;
+import br.com.daciosoftware.shop.exceptions.exceptions.ProductIdentifieViolationException;
+import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
+import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.modelos.entity.Category;
+import br.com.daciosoftware.shop.modelos.entity.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
 
 @Service
@@ -49,20 +50,29 @@ public class ProductService {
 	private CategoryService categoryService;
 
 	public List<ProductDTO> findAll() {
-		return productRepository.findAll().stream().map(ProductDTO::convert).collect(Collectors.toList());
+		return productRepository.findAll()
+				.stream()
+				.sorted(Comparator.comparing(Product::getId))
+				.map(ProductDTO::convert)
+				.collect(Collectors.toList());
 	}
 
 	public List<ProductDTO> findByNome(String name) {
-		return productRepository.findByNomeContainingIgnoreCase(name).stream().map(ProductDTO::convert)
+		return productRepository.findByNomeContainingIgnoreCase(name)
+				.stream()
+				.map(ProductDTO::convert)
 				.collect(Collectors.toList());
 	}
 
 	public ProductDTO findById(Long id) {
-		return productRepository.findById(id).map(ProductDTO::convert).orElseThrow(ProductNotFoundException::new);
+		return productRepository.findById(id)
+				.map(ProductDTO::convert)
+				.orElseThrow(ProductNotFoundException::new);
 	}
 
 	public ProductDTO findProductByProductIdentifier(String productIdentifie) {
-		return productRepository.findByProductIdentifier(productIdentifie).map(ProductDTO::convert)
+		return productRepository.findByProductIdentifier(productIdentifie)
+				.map(ProductDTO::convert)
 				.orElseThrow(ProductNotFoundException::new);
 	}
 
@@ -75,7 +85,8 @@ public class ProductService {
 	
 	public List<ProductDTO> findByCategory(Long categoryId) {
 		CategoryDTO category = categoryService.findById(categoryId);		
-		return productRepository.findByCategory(Category.convert(category)).stream().map(ProductDTO::convert)
+		return productRepository.findByCategory(Category.convert(category))
+				.stream().map(ProductDTO::convert)
 				.collect(Collectors.toList());
 	}
 
