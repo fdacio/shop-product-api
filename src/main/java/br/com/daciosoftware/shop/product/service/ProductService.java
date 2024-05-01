@@ -76,7 +76,7 @@ public class ProductService {
 				.orElseThrow(ProductNotFoundException::new);
 	}
 
-	public boolean checkIdentifierExistInUpdate(String productIdentifie, Product product) {
+	public boolean checkIdentifierIsUnique(String productIdentifie, Product product) {
 		
 		Optional<Product> productOther = productRepository.findByProductIdentifier(productIdentifie);
 		
@@ -84,8 +84,7 @@ public class ProductService {
 	}
 	
 	public List<ProductDTO> findByCategory(Long categoryId) {
-		CategoryDTO category = categoryService.findById(categoryId);		
-		return productRepository.findByCategory(Category.convert(category))
+		return productRepository.findByCategory(categoryId)
 				.stream().map(ProductDTO::convert)
 				.collect(Collectors.toList());
 	}
@@ -127,7 +126,7 @@ public class ProductService {
 		if ((productDTO.getProductIdentifier() != null)
 				&& !(productDTO.getProductIdentifier().equals(product.getProductIdentifier()))) {
 			
-			if (checkIdentifierExistInUpdate(productDTO.getProductIdentifier(), product)) { 
+			if (checkIdentifierIsUnique(productDTO.getProductIdentifier(), product)) { 
 				throw new ProductIdentifieViolationException();
 			}
 			
