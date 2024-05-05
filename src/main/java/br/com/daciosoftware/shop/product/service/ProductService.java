@@ -76,11 +76,16 @@ public class ProductService {
 				.orElseThrow(ProductNotFoundException::new);
 	}
 
-	public boolean checkIdentifierIsUnique(String productIdentifie, Product product) {
+	public void validIdentifierIsUnique(String productIdentifie, Long id) {
 		
-		Optional<Product> productOther = productRepository.findByProductIdentifier(productIdentifie);
-		
-		return (productOther.isPresent() && product.getId() != productOther.get().getId());
+		Optional<ProductDTO> productDTO = productRepository.findByProductIdentifier(productIdentifie).map(ProductDTO::convert);
+		if (productDTO.isPresent()) {
+			if (id == null) {
+				throw new ProductIdentifieViolationException();
+			} else if (id != productDTO.get().getId()) {
+				throw new ProductIdentifieViolationException();
+			}
+		}
 	}
 	
 	public List<ProductDTO> findByCategory(Long categoryId) {
@@ -96,6 +101,7 @@ public class ProductService {
 	public ProductDTO save(ProductDTO productDTO) {
 		productDTO.setCategory(categoryService.findById(productDTO.getCategory().getId()));
 		Product product = Product.convert(productDTO);
+		validIdentifierIsUnique(productDTO.getProductIdentifier(), null);
 		return ProductDTO.convert(productRepository.save(product));
 	}
 
@@ -112,29 +118,35 @@ public class ProductService {
 		
 		Product product = Product.convert(findById(productId));
 		
-		if ((productDTO.getNome() != null) && !(productDTO.getNome().equals(product.getNome()))) {
-			product.setNome(productDTO.getNome());
+		if (productDTO.getNome() != null) {
+			boolean isNomeAlterado =  !(productDTO.getNome().equals(product.getNome()));
+			if(isNomeAlterado) product.setNome(productDTO.getNome());
 		}
-		if ((productDTO.getDescricao() != null) && !(productDTO.getDescricao().equals(product.getDescricao()))) {
-			product.setDescricao(productDTO.getDescricao());
+		
+		if (productDTO.getDescricao() != null) {
+			boolean isDescricaoAlterado = !(productDTO.getDescricao().equals(product.getDescricao()));
+			if (isDescricaoAlterado) product.setDescricao(productDTO.getDescricao());
 		}
-		if ((productDTO.getPreco() != null) && !(productDTO.getPreco().equals(product.getPreco()))) {
-			product.setPreco(productDTO.getPreco());
+		
+		if (productDTO.getPreco() != null) {
+			boolean isPrecoAlterado = !(productDTO.getPreco().equals(product.getPreco()));
+			if (isPrecoAlterado) product.setPreco(productDTO.getPreco());
 		}
-		if ((productDTO.getProductIdentifier() != null)
-				&& !(productDTO.getProductIdentifier().equals(product.getProductIdentifier()))) {
-			
-			if (checkIdentifierIsUnique(productDTO.getProductIdentifier(), product)) { 
-				throw new ProductIdentifieViolationException();
+		
+		if (productDTO.getProductIdentifier() != null) {
+			boolean isProductIdentifierAlterado = !(productDTO.getProductIdentifier().equals(product.getProductIdentifier()));
+			if (isProductIdentifierAlterado) {
+				validIdentifierIsUnique(productDTO.getProductIdentifier(), productId);			
+				product.setProductIdentifier(productDTO.getProductIdentifier());
 			}
-			
-			product.setProductIdentifier(productDTO.getProductIdentifier());
-			
 		}
-		if ((productDTO.getCategory() != null)
-				&& !(productDTO.getCategory().getId().equals(product.getCategory().getId()))) {
-			CategoryDTO categoryDTO = categoryService.findById(productDTO.getCategory().getId());
-			product.setCategory(Category.convert(categoryDTO));
+		
+		if (productDTO.getCategory() != null) {
+			boolean isCategoryAlterada = !(productDTO.getCategory().getId().equals(product.getCategory().getId()));
+			if (isCategoryAlterada) {
+				CategoryDTO categoryDTO = categoryService.findById(productDTO.getCategory().getId());
+				product.setCategory(Category.convert(categoryDTO));
+			}
 		}
 		
 		product = productRepository.save(product);
