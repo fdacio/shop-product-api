@@ -74,7 +74,7 @@ public class ProductController {
 		productService.delete(id);
 	}
 	
-	@DeleteMapping("/maior-que/{id}")
+	@DeleteMapping("/delete/maior-que/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteMaiorQue (@PathVariable Long id) {
 		productService.deleteMaiorQue(id);

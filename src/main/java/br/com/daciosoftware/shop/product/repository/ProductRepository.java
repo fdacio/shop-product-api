@@ -17,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query(value="select p from product p where p.category.id = :categoryId")
 	List<Product> findByCategory(@Param("categoryId") Long categoryId);
 
-	List<Product> findByNomeContainingIgnoreCase(String nome);
+	List<Product> findByNomeContainingIgnoreCaseOrderById(String nome);
 	
 	List<Product> findByIdGreaterThan(Long id);	
 

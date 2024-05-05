@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
+import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
 import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
 import br.com.daciosoftware.shop.modelos.entity.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
@@ -88,17 +89,43 @@ public class ProductServiceTest {
 	}
 	
 	@Test
+	void testFindByIdentifier_Throw_ProductNotFoundExcpetion() {
+
+		String productIdentifier = "identifier_not_found";//identificador não existente	
+
+		Optional<Product> product = ProductReposytoryMock.getProductFilterByIdentifie(productIdentifier);
+
+		Mockito.when(productRepository.findByProductIdentifier(productIdentifier)).thenReturn(product);
+
+		Assertions.assertThrowsExactly(ProductNotFoundException.class, () -> productService.findProductByProductIdentifier(productIdentifier));
+	}
+	
+	@Test
 	public void testFindByName() {
 
 		String name = "Produto";
 
 		List<Product> products = ProductReposytoryMock.getProductsFilterByName(name);
 
-		Mockito.when(productRepository.findByNomeContainingIgnoreCase(name)).thenReturn(products);
+		Mockito.when(productRepository.findByNomeContainingIgnoreCaseOrderById(name)).thenReturn(products);
 
 		List<ProductDTO> productsResult = productService.findByNome(name);
 
 		Assertions.assertEquals(3, productsResult.size());
 	}
 
+	public void testeSave() {
+		
+		ProductDTO productDTO = new ProductDTO();
+		productDTO.setNome("Refrigerador");
+		productDTO.setCategory(new CategoryDTO(1L, "Eletrodoméstico"));
+		Product newProduct = Product.convert(productDTO);
+		
+		Mockito.when(productRepository.save(newProduct)).thenReturn(newProduct);
+		
+		ProductDTO resultProduct = productService.save(productDTO);
+		
+		Assertions.assertEquals(resultProduct.getNome(), productDTO.getNome());
+		Assertions.assertEquals(resultProduct.getCategory().getId(), productDTO.getCategory().getId());
+	}
 }

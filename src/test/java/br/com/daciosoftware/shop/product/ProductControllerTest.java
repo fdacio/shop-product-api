@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
 import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
 import br.com.daciosoftware.shop.product.controller.ProductController;
 import br.com.daciosoftware.shop.product.service.ProductService;
@@ -76,10 +75,9 @@ public class ProductControllerTest {
 		
 		Mockito.when(productService.findById(productId)).thenReturn(productDTO);
 		
-		MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/product/{productId}", productId);
 		
 		MvcResult result = mockMvc
-				.perform(request)
+				.perform(get("/product/{productId}", productId))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andReturn();
 		
@@ -88,19 +86,26 @@ public class ProductControllerTest {
 	}
 	
 	@Test
-	public void testFindById_Throw_ProductNotFoudException() throws Exception {
+	public void testFindByIdentifier() throws Exception {
+		String identifier = "312346";
 		
-		Long productId = 8000L;
-		
-		Mockito.when(productService.findById(productId))
-		.thenThrow(ProductNotFoundException.class);
-		
-		MvcResult result = mockMvc.perform(get("/product/{productId}", productId)).andReturn();
-		
-		System.err.println(result.getResponse().getContentAsString());
-		
-		Assertions.assertEquals("Produto não encontrado", result.getResponse().getContentAsString());
-	}
-	
+		ProductDTO productDTO = ProductReposytoryMock.getProductDTOFilterByIdentifie(identifier);
 
+		ObjectMapper mapper = new ObjectMapper();
+		String responseJson = mapper.writeValueAsString(productDTO);
+		
+		Mockito.when(productService.findProductByProductIdentifier(identifier)).thenReturn(productDTO);
+		
+		
+		MvcResult result = mockMvc
+				.perform(get("/product/{identifier}/identifier", identifier))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andReturn();
+		
+		Assertions.assertEquals(responseJson, result.getResponse().getContentAsString());
+	}
+
+	public void testSave() {
+		
+	}
 }

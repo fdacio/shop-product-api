@@ -58,7 +58,7 @@ public class ProductService {
 	}
 
 	public List<ProductDTO> findByNome(String name) {
-		return productRepository.findByNomeContainingIgnoreCase(name)
+		return productRepository.findByNomeContainingIgnoreCaseOrderById(name)
 				.stream()
 				.map(ProductDTO::convert)
 				.collect(Collectors.toList());
@@ -94,11 +94,9 @@ public class ProductService {
 	}
 
 	public ProductDTO save(ProductDTO productDTO) {
-		CategoryDTO category = categoryService.findById(productDTO.getCategory().getId());
-		productDTO.setCategory(category);
+		productDTO.setCategory(categoryService.findById(productDTO.getCategory().getId()));
 		Product product = Product.convert(productDTO);
-		product = productRepository.save(product);
-		return ProductDTO.convert(product);
+		return ProductDTO.convert(productRepository.save(product));
 	}
 
 	public void delete(Long productId) {
