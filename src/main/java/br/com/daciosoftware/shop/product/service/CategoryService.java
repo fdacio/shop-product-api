@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.daciosoftware.shop.exceptions.exceptions.CategoryNotFoundException;
-import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.entity.Category;
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.entity.product.Category;
 import br.com.daciosoftware.shop.product.repository.CategoryRepository;
 
 @Service

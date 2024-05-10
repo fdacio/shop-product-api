@@ -12,9 +12,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
-import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
-import br.com.daciosoftware.shop.modelos.entity.Product;
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
+import br.com.daciosoftware.shop.modelos.entity.product.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
 import br.com.daciosoftware.shop.product.service.CategoryService;
 import br.com.daciosoftware.shop.product.service.ProductService;
@@ -114,10 +114,13 @@ public class ProductServiceTest {
 		Assertions.assertEquals(3, productsResult.size());
 	}
 
-	public void testeSave() {
+	public void testSave() {
 		
 		ProductDTO productDTO = new ProductDTO();
 		productDTO.setNome("Refrigerador");
+		productDTO.setDescricao("Descricao do Refrigerador ");
+		productDTO.setPreco((float)1000.00);
+		productDTO.setProductIdentifier("123456789");
 		productDTO.setCategory(new CategoryDTO(1L, "Eletrodoméstico"));
 		Product newProduct = Product.convert(productDTO);
 		
@@ -128,4 +131,5 @@ public class ProductServiceTest {
 		Assertions.assertEquals(resultProduct.getNome(), productDTO.getNome());
 		Assertions.assertEquals(resultProduct.getCategory().getId(), productDTO.getCategory().getId());
 	}
+	
 }

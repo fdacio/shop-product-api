@@ -33,11 +33,11 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductIdentifieViolationException;
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
-import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductReportRequestDTO;
-import br.com.daciosoftware.shop.modelos.entity.Category;
-import br.com.daciosoftware.shop.modelos.entity.Product;
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.modelos.entity.product.Category;
+import br.com.daciosoftware.shop.modelos.entity.product.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
 
 @Service
@@ -99,9 +99,13 @@ public class ProductService {
 	}
 
 	public ProductDTO save(ProductDTO productDTO) {
-		productDTO.setCategory(categoryService.findById(productDTO.getCategory().getId()));
-		Product product = Product.convert(productDTO);
+		
 		validIdentifierIsUnique(productDTO.getProductIdentifier(), null);
+		CategoryDTO categoryDTO = categoryService.findById(productDTO.getCategory().getId()); 
+		
+		productDTO.setCategory(categoryDTO);
+		Product product = Product.convert(productDTO);
+		
 		return ProductDTO.convert(productRepository.save(product));
 	}
 

@@ -1,6 +1,7 @@
 package br.com.daciosoftware.shop.product;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.nio.charset.StandardCharsets;
 
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -21,7 +23,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.product.controller.ProductController;
 import br.com.daciosoftware.shop.product.service.ProductService;
 
@@ -105,7 +108,51 @@ public class ProductControllerTest {
 		Assertions.assertEquals(responseJson, result.getResponse().getContentAsString());
 	}
 
-	public void testSave() {
+	@Test
+	public void testSave() throws Exception {
 		
+		ProductDTO productDTO = new ProductDTO();
+		productDTO.setNome("Refrigerador");
+		productDTO.setDescricao("Descricao do Refrigerador ");
+		productDTO.setPreco((float)1000.00);
+		productDTO.setProductIdentifier("123456789");
+		productDTO.setCategory(new CategoryDTO(1L, "Eletrodoméstico"));
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String productJson = mapper.writeValueAsString(productDTO);
+
+		
+		Mockito.when(productService.save(Mockito.any())).thenReturn(productDTO);
+		
+		
+		MvcResult result = mockMvc
+				.perform(post("/product")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(productJson))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andReturn();
+		
+		Assertions.assertEquals(productJson, result.getResponse().getContentAsString());
+
+	}
+	
+	@Test
+	public void testSave_ValidationFields() throws Exception {
+		
+		ProductDTO productDTO = new ProductDTO();
+		productDTO.setNome(null);
+		productDTO.setDescricao(null);
+		productDTO.setPreco(null);
+		productDTO.setProductIdentifier(null);
+		productDTO.setCategory(null);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String productJson = mapper.writeValueAsString(productDTO);			
+
+		mockMvc.perform(post("/product")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(productJson))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest());
+
 	}
 }
