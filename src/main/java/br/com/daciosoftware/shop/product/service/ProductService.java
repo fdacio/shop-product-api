@@ -43,6 +43,8 @@ import br.com.daciosoftware.shop.product.repository.ProductRepository;
 @Service
 public class ProductService {
 
+	private static int SCALE_PERC_LOGO = 20;
+	
 	@Autowired
 	private ProductRepository productRepository;
 	
@@ -218,9 +220,9 @@ public class ProductService {
 	
 	private void addHeaderReport(Document document) throws URISyntaxException, MalformedURLException, IOException, DocumentException {
 
-		Path path = Paths.get(ClassLoader.getSystemResource("static/logo.png").toURI());
+		Path path = Paths.get(ClassLoader.getSystemResource("static/images/logo.png").toURI());
 		Image img = Image.getInstance(path.toAbsolutePath().toString());
-		img.scalePercent(20);
+		img.scalePercent(SCALE_PERC_LOGO);
 		
 		PdfPTable tableHeader = new PdfPTable(3);
 		tableHeader.setWidthPercentage(100);
