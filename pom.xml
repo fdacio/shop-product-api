@@ -13,9 +13,12 @@
 	<artifactId>shop-product-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>shop-product-api</name>
+	<packaging>jar</packaging>
 	<description>Project Shop do Livro Java Back-End</description>
 	<properties>
+		<shop-modelos-scope>import</shop-modelos-scope>
 		<java.version>17</java.version>
+		<docker.image.prefix>loja</docker.image.prefix>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -80,7 +83,16 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.9</version>
+				<configuration>
+					<repository>${docker.image.prefix}/${project.artifactId}</repository>
+				</configuration>
+			</plugin>
 		</plugins>
+
 	</build>
 
 </project>
