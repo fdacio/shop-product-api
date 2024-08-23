@@ -22,11 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.itextpdf.text.DocumentException;
 
 import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductUploadPhotoDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
 import jakarta.validation.Valid;
 
@@ -67,6 +69,15 @@ public class ProductController {
 	public ProductDTO save(@Valid @RequestBody ProductDTO productDTO) {
 		return productService.save(productDTO);
 	}
+	
+	@PatchMapping("/{id}/upload-photo")
+	@ResponseStatus(HttpStatus.OK)
+	public ProductUploadPhotoDTO uploadPhoto(@RequestParam("file") MultipartFile file, @PathVariable Long id) {
+		
+		return productService.uploadPhoto(file, id);
+
+	}
+	
 	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)

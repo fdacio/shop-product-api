@@ -3,7 +3,9 @@ package br.com.daciosoftware.shop.product.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
@@ -12,21 +14,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.itextpdf.text.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
 import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.Font.FontStyle;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -36,6 +33,7 @@ import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
 import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductReportRequestDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductUploadPhotoDTO;
 import br.com.daciosoftware.shop.modelos.entity.product.Category;
 import br.com.daciosoftware.shop.modelos.entity.product.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
@@ -43,7 +41,7 @@ import br.com.daciosoftware.shop.product.repository.ProductRepository;
 @Service
 public class ProductService {
 
-	private static int SCALE_PERC_LOGO = 20;
+	private static final int SCALE_PERC_LOGO = 20;
 	
 	@Autowired
 	private ProductRepository productRepository;
@@ -175,16 +173,14 @@ public class ProductService {
 			products = products
 					.stream()
 					.filter(p -> p.getPreco() >= productDTO.getPrecoInicial())
-					.toList();
-			
+					.toList();			
 		}
 		
 		if (productDTO.getPrecoFinal() != null) {
 			products = products
 					.stream()
 					.filter(p -> p.getPreco() <= productDTO.getPrecoFinal())
-					.toList();
-			
+					.toList();			
 		}
 
 		return products.stream().map(ProductDTO::convert).collect(Collectors.toList());
@@ -205,7 +201,7 @@ public class ProductService {
 
 		PdfPTable table = new PdfPTable(4);
 		table.setWidthPercentage(100);
-		float widths[] = {35, 35, 15, 15};
+		float[] widths = {35, 35, 15, 15};
 		table.setWidths(widths);
 		
 		addTableHeader(table);
@@ -218,27 +214,23 @@ public class ProductService {
 		return outputStream;
 	}
 	
-	private void addHeaderReport(Document document) throws URISyntaxException, MalformedURLException, IOException, DocumentException {
+	private void addHeaderReport(Document document) throws DocumentException, URISyntaxException, IOException {
 
-		Path path = Paths.get(ClassLoader.getSystemResource("static/images/logo.png").toURI());
-		Image img = Image.getInstance(path.toAbsolutePath().toString());
-		img.scalePercent(SCALE_PERC_LOGO);
-		
 		PdfPTable tableHeader = new PdfPTable(3);
 		tableHeader.setWidthPercentage(100);
-		float widths[] = {15, 70, 15};
+		float[] widths = {15, 70, 15};
 		tableHeader.setWidths(widths);
-		
-		PdfPCell pdfPCellImg = new PdfPCell(img);
+
+		PdfPCell pdfPCellImg =  getLogo().isPresent() ? new PdfPCell(getLogo().get()) : new PdfPCell();
 		pdfPCellImg.setBorderWidth(0);
+		tableHeader.addCell(pdfPCellImg);
 
 		Font fontTitle = new Font(FontFamily.HELVETICA, 18, FontStyle.BOLD.ordinal());
 		PdfPCell pdfPCellTitulo = new PdfPCell(new Phrase("Relatório de Produtos", fontTitle));
 		pdfPCellTitulo.setBorderWidth(0);
 		pdfPCellTitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		pdfPCellTitulo.setVerticalAlignment(Element.ALIGN_MIDDLE);
-		
-		tableHeader.addCell(pdfPCellImg);
+
 		tableHeader.addCell(pdfPCellTitulo);
 		PdfPCell pdfPCell = new PdfPCell();
 		pdfPCell.setBorderWidth(0);
@@ -286,6 +278,22 @@ public class ProductService {
 		PdfPCell pdfPCellValorTotal = new PdfPCell(new Phrase(String.format("R$ %,.2f", valorTotal), font));
 		pdfPCellValorTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
 		table.addCell(pdfPCellValorTotal);
+	}
+
+	private Optional<Image> getLogo() throws URISyntaxException, BadElementException, IOException {
+		URL logoResource = ClassLoader.getSystemResource("static/images/logo.png");
+		if (logoResource == null) {
+			return Optional.empty();
+		}
+		Path path = Paths.get(logoResource.toURI());
+		Image img = Image.getInstance(path.toAbsolutePath().toString());
+		img.scalePercent(SCALE_PERC_LOGO);
+		return Optional.of(img);
+	}
+	
+	public ProductUploadPhotoDTO uploadPhoto(MultipartFile file, Long id) {
+
+        return new ProductUploadPhotoDTO();
 	}
 
 }
