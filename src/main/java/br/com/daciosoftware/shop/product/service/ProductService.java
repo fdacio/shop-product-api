@@ -96,8 +96,8 @@ public class ProductService {
 
 		validIdentifierIsUnique(productDTO.getIdentifier(), null);
 		CategoryDTO categoryDTO = categoryService.findById(productDTO.getCategory().getId());
-
 		productDTO.setCategory(categoryDTO);
+
 		Product product = Product.convert(productDTO);
 
 		return ProductDTO.convert(productRepository.save(product));

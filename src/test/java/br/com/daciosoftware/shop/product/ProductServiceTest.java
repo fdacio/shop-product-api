@@ -135,7 +135,7 @@ public class ProductServiceTest {
 		ProductDTO resultProduct = productService.save(productDTO);
 
 		Assertions.assertEquals("Refrigerador", resultProduct.getNome());
-		Assertions.assertEquals("Eletrodoméstivo", resultProduct.getCategory().getNome());
+		Assertions.assertEquals("Eletrodomésticos", resultProduct.getCategory().getNome());
 	}
 
 }
