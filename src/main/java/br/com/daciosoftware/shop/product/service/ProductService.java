@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
+import br.com.daciosoftware.shop.modelos.entity.product.Category;
+import br.com.daciosoftware.shop.modelos.entity.product.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import br.com.daciosoftware.shop.exceptions.ProductNotFoundException;
-import br.com.daciosoftware.shop.modelos.dto.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
-import br.com.daciosoftware.shop.modelos.entity.Category;
-import br.com.daciosoftware.shop.modelos.entity.Product;
 import br.com.daciosoftware.shop.product.repository.ProductRepository;
 
 @Service
