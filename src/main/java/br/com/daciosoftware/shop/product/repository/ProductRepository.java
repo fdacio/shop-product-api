@@ -11,10 +11,8 @@ import org.springframework.data.repository.query.Param;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 	
 	Optional<Product> findByIdentifier(String productIdentifier);
-	
 	List<Product> findByNomeContainingIgnoreCaseOrderById(String nome);
-	
 	@Query(value="select p from product p join category c on p.category.id = c.id where c.id = :categoryId")
 	List<Product> findByCategory(@Param("categoryId") Long categoryId);
-
+	List<Product> findByIdGreaterThan(Long id);
 }
