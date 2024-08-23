@@ -35,13 +35,13 @@ public class ProductService {
 		return ProductDTO.convert(productOptional.get());
 	}
 
-	public List<ProductDTO> findProductsByCategory(Long categoryId) {
-		List<Product> produtos = productRepository.findProductsByCategory(categoryId);
-		return produtos.stream().map(ProductDTO::convert).collect(Collectors.toList());
+	public List<ProductDTO> findByCategory(Long categoryId) {
+		List<Product> products = productRepository.findByCategory(categoryId);
+		return products.stream().map(ProductDTO::convert).collect(Collectors.toList());
 	}
 
-	public ProductDTO findProductByProductIdentifier(String productIdentifie) {
-		Optional<Product> productOptional = productRepository.findByProductIdentifier(productIdentifie);
+	public ProductDTO findByIdentifier(String productIdentifie) {
+		Optional<Product> productOptional = productRepository.findByIdentifier(productIdentifie);
 		productOptional.orElseThrow(ProductNotFoundException::new);
 		return ProductDTO.convert(productOptional.get());
 	}
@@ -69,9 +69,9 @@ public class ProductService {
 		if ((productDTO.getPreco() != null) && !(productDTO.getPreco().equals(product.getPreco()))) {
 			product.setPreco(productDTO.getPreco());
 		}
-		if ((productDTO.getProductIdentifier() != null)
-				&& !(productDTO.getProductIdentifier().equals(product.getProductIdentifier()))) {
-			product.setProductIdentifier(productDTO.getProductIdentifier());
+		if ((productDTO.getIdentifier() != null)
+				&& !(productDTO.getIdentifier().equals(product.getIdentifier()))) {
+			product.setIdentifier(productDTO.getIdentifier());
 		}
 		if ((productDTO.getCategory() != null) && !(productDTO.getCategory().getId().equals(product.getCategory().getId()))) {
 			CategoryDTO categoryDTO = categoryService.findById(productDTO.getCategory().getId());
@@ -83,13 +83,13 @@ public class ProductService {
 	}
 
 	public Page<ProductDTO> findAllPageable(Pageable pageable) {
-		Page<Product> produtos = productRepository.findAll(pageable);
-		return produtos.map(ProductDTO::convert);
+		Page<Product> products = productRepository.findAll(pageable);
+		return products.map(ProductDTO::convert);
 	}
 
 	public List<ProductDTO> findByNome(String name) {
-		List<Product> produtos = productRepository.findByNomeContainingIgnoreCase(name);
-		return produtos.stream().map(ProductDTO::convert).collect(Collectors.toList());
+		List<Product> products = productRepository.findByNomeContainingIgnoreCaseOrderById(name);
+		return products.stream().map(ProductDTO::convert).collect(Collectors.toList());
 	}
 
 }

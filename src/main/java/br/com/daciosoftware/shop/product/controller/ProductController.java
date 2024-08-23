@@ -30,12 +30,12 @@ public class ProductController {
 	
 	@GetMapping("/category/{categoryId}")
 	public List<ProductDTO> findProductsByCategory(@PathVariable Long categoryId) {
-		return productService.findProductsByCategory(categoryId);
+		return productService.findByCategory(categoryId);
 	}
 	
 	@GetMapping("/{productIdentifier}/identifier")
 	public ProductDTO findByIdentifier(@PathVariable String productIdentifier) {
-		return productService.findProductByProductIdentifier(productIdentifier);
+		return productService.findByIdentifier(productIdentifier);
 	}
 	
 	@GetMapping("/search")

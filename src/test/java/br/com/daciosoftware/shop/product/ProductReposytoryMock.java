@@ -60,7 +60,7 @@ public class ProductReposytoryMock {
 				product.setNome(nome);
 				product.setDescricao(descricao);
 				product.setPreco(preco);
-				product.setProductIdentifier(identifier);
+				product.setIdentifier(identifier);
 				product.setCategory(category);
 				return product;
 			}
@@ -117,7 +117,7 @@ public class ProductReposytoryMock {
 
 	public static Optional<Product> getProductFilterByIdentifie(String productIdentifie) {
 
-		return getListProducts().stream().filter(p -> p.getProductIdentifier().equals(productIdentifie)).findFirst();
+		return getListProducts().stream().filter(p -> p.getIdentifier().equals(productIdentifie)).findFirst();
 	}
 
 	public static List<Product> getProductsFilterByCategory(Long categoryIdentifie) {

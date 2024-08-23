@@ -97,7 +97,7 @@ public class ProductControllerTest {
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson = mapper.writeValueAsString(productDTO);
 		
-		Mockito.when(productService.findProductByProductIdentifier(identifier)).thenReturn(productDTO);
+		Mockito.when(productService.findByIdentifier(identifier)).thenReturn(productDTO);
 		
 		
 		MvcResult result = mockMvc
@@ -115,7 +115,7 @@ public class ProductControllerTest {
 		productDTO.setNome("Refrigerador");
 		productDTO.setDescricao("Descricao do Refrigerador ");
 		productDTO.setPreco((float)1000.00);
-		productDTO.setProductIdentifier("123456789");
+		productDTO.setIdentifier("123456789");
 		productDTO.setCategory(new CategoryDTO(1L, "Eletrodoméstico"));
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -143,7 +143,7 @@ public class ProductControllerTest {
 		productDTO.setNome(null);
 		productDTO.setDescricao(null);
 		productDTO.setPreco(null);
-		productDTO.setProductIdentifier(null);
+		productDTO.setIdentifier(null);
 		productDTO.setCategory(null);
 		
 		ObjectMapper mapper = new ObjectMapper();

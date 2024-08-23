@@ -81,9 +81,9 @@ public class ProductServiceTest {
 
 		Optional<Product> product = ProductReposytoryMock.getProductFilterByIdentifie(productIdentifier);
 
-		Mockito.when(productRepository.findByProductIdentifier(productIdentifier)).thenReturn(product);
+		Mockito.when(productRepository.findByIdentifier(productIdentifier)).thenReturn(product);
 
-		ProductDTO productDTOResult = productService.findProductByProductIdentifier(productIdentifier);
+		ProductDTO productDTOResult = productService.findByIdentifier(productIdentifier);
 
 		Assertions.assertEquals("Produto 2", productDTOResult.getNome());
 	}
@@ -95,9 +95,9 @@ public class ProductServiceTest {
 
 		Optional<Product> product = ProductReposytoryMock.getProductFilterByIdentifie(productIdentifier);
 
-		Mockito.when(productRepository.findByProductIdentifier(productIdentifier)).thenReturn(product);
+		Mockito.when(productRepository.findByIdentifier(productIdentifier)).thenReturn(product);
 
-		Assertions.assertThrowsExactly(ProductNotFoundException.class, () -> productService.findProductByProductIdentifier(productIdentifier));
+		Assertions.assertThrowsExactly(ProductNotFoundException.class, () -> productService.findByIdentifier(productIdentifier));
 	}
 	
 	@Test
@@ -120,7 +120,7 @@ public class ProductServiceTest {
 		productDTO.setNome("Refrigerador");
 		productDTO.setDescricao("Descricao do Refrigerador ");
 		productDTO.setPreco((float)1000.00);
-		productDTO.setProductIdentifier("123456789");
+		productDTO.setIdentifier("123456789");
 		productDTO.setCategory(new CategoryDTO(1L, "Eletrodoméstico"));
 		Product newProduct = Product.convert(productDTO);
 		
