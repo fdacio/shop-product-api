@@ -18,14 +18,12 @@ public class CategoryService {
 	private CategoryRepository categoryRepository;
 
 	public List<CategoryDTO> findAll() {
-		List<Category> categorias = categoryRepository.findAll();
-		return categorias.stream().map(CategoryDTO::convert).collect(Collectors.toList());
+		List<Category> categories = categoryRepository.findAll();
+		return categories.stream().map(CategoryDTO::convert).collect(Collectors.toList());
 	}
 
 	public CategoryDTO findById(Long id) {
-		Optional<Category> categoryOptional = categoryRepository.findById(id);
-		categoryOptional.orElseThrow(CategoryNotFoundException::new);
-		return CategoryDTO.convert(categoryOptional.get());
+		return categoryRepository.findById(id).map(CategoryDTO::convert).orElseThrow(CategoryNotFoundException::new);
 	}
 
 	public CategoryDTO save(CategoryDTO categoryDTO) {

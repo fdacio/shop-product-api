@@ -3,6 +3,7 @@ package br.com.daciosoftware.shop.product;
 import java.util.List;
 import java.util.Optional;
 
+import br.com.daciosoftware.shop.modelos.entity.product.Category;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,7 @@ public class ProductServiceTest {
 
 	@Test
 	void testFindById() {
-		
+
 		Long id = 1L;
 
 		Optional<Product> product = ProductReposytoryMock.getProductFilterById(id);
@@ -52,7 +53,7 @@ public class ProductServiceTest {
 	}
 
 	@Test
-	void testFindById_Throw_ProductNotFoundExcpetion() {
+	void testFindById_Throw_ProductNotFoundException() {
 
 		Long id = 8L;//id não existente
 
@@ -87,11 +88,11 @@ public class ProductServiceTest {
 
 		Assertions.assertEquals("Produto 2", productDTOResult.getNome());
 	}
-	
-	@Test
-	void testFindByIdentifier_Throw_ProductNotFoundExcpetion() {
 
-		String productIdentifier = "identifier_not_found";//identificador não existente	
+	@Test
+	void testFindByIdentifier_Throw_ProductNotFoundException() {
+
+		String productIdentifier = "identifier_not_found";//identificador não existente
 
 		Optional<Product> product = ProductReposytoryMock.getProductFilterByIdentifie(productIdentifier);
 
@@ -99,7 +100,7 @@ public class ProductServiceTest {
 
 		Assertions.assertThrowsExactly(ProductNotFoundException.class, () -> productService.findByIdentifier(productIdentifier));
 	}
-	
+
 	@Test
 	public void testFindByName() {
 
@@ -114,22 +115,27 @@ public class ProductServiceTest {
 		Assertions.assertEquals(3, productsResult.size());
 	}
 
+	@Test
 	public void testSave() {
-		
-		ProductDTO productDTO = new ProductDTO();
-		productDTO.setNome("Refrigerador");
-		productDTO.setDescricao("Descricao do Refrigerador ");
-		productDTO.setPreco((float)1000.00);
-		productDTO.setIdentifier("123456789");
-		productDTO.setCategory(new CategoryDTO(1L, "Eletrodoméstico"));
-		Product newProduct = Product.convert(productDTO);
-		
-		Mockito.when(productRepository.save(newProduct)).thenReturn(newProduct);
-		
+
+		Product product = new Product();
+		product.setNome("Refrigerador");
+		product.setDescricao("Descricao do Refrigerador ");
+		product.setPreco((float)1000.00);
+		product.setIdentifier("123456789");
+		Category category = new Category();
+		category.setId(1L);
+		category.setNome("Eletrodomésticos");
+		product.setCategory(category);
+
+		ProductDTO productDTO = ProductDTO.convert(product);
+
+		Mockito.when(productRepository.save(Mockito.any())).thenReturn(product);
+
 		ProductDTO resultProduct = productService.save(productDTO);
-		
-		Assertions.assertEquals(resultProduct.getNome(), productDTO.getNome());
-		Assertions.assertEquals(resultProduct.getCategory().getId(), productDTO.getCategory().getId());
+
+		Assertions.assertEquals("Refrigerador", resultProduct.getNome());
+		Assertions.assertEquals("Eletrodoméstivo", resultProduct.getCategory().getNome());
 	}
-	
+
 }

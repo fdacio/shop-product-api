@@ -227,7 +227,6 @@ public class ProductService {
 		pdfPCellTitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
 		pdfPCellTitulo.setVerticalAlignment(Element.ALIGN_MIDDLE);
 
-		tableHeader.addCell(pdfPCellImg);
 		tableHeader.addCell(pdfPCellTitulo);
 		PdfPCell pdfPCell = new PdfPCell();
 		pdfPCell.setBorderWidth(0);

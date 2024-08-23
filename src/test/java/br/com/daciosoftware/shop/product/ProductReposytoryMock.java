@@ -105,9 +105,7 @@ public class ProductReposytoryMock {
 				.setCategory(getCategory(1L, "Category 1"))
 				.build();
 
-		List<Product> products = Arrays.asList(product1, product2, product3);
-
-		return products;
+        return Arrays.asList(product1, product2, product3);
 	}
 
 	public static Optional<Product> getProductFilterById(Long id) {
