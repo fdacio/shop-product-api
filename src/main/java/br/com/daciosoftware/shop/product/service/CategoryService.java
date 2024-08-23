@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +27,14 @@ public class CategoryService {
 
 	public CategoryDTO save(CategoryDTO categoryDTO) {
 		Category category = Category.convert(categoryDTO);
+		return CategoryDTO.convert(categoryRepository.save(category));
+	}
+
+	public CategoryDTO update(Long id, CategoryDTO categoryDTO) {
+		Category category = Category.convert(findById(id));
+		if (!categoryDTO.getNome().equals(category.getNome())) {
+			category.setNome(categoryDTO.getNome());
+		}
 		return CategoryDTO.convert(categoryRepository.save(category));
 	}
 
