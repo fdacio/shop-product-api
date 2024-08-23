@@ -47,7 +47,7 @@ public class ProductController {
 	}
 	
 	@GetMapping("/search")
-	public List<ProductDTO> findByNone(@RequestParam(name = "nome", required = true) String nome) {
+	public List<ProductDTO> findByNone(@RequestParam(name = "nome") String nome) {
 		return productService.findByNome(nome);
 	}
 	
