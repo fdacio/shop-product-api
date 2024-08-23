@@ -1,17 +1,11 @@
 package br.com.daciosoftware.shop.product.controller;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,13 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.itextpdf.text.DocumentException;
-
-import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
-import br.com.daciosoftware.shop.modelos.dto.product.ProductReportRequestDTO;
-import br.com.daciosoftware.shop.modelos.dto.product.ProductUploadPhotoDTO;
+import br.com.daciosoftware.shop.modelos.dto.ProductDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
 import jakarta.validation.Valid;
 
@@ -51,7 +40,7 @@ public class ProductController {
 	
 	@GetMapping("/category/{categoryId}")
 	public List<ProductDTO> findProductsByCategory(@PathVariable Long categoryId) {
-		return productService.findByCategory(categoryId);
+		return productService.findProductsByCategory(categoryId);
 	}
 	
 	@GetMapping("/{productIdentifier}/identifier")
@@ -66,18 +55,9 @@ public class ProductController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ProductDTO save(@Valid @RequestBody ProductDTO productDTO) {
+	public ProductDTO save(@RequestBody @Valid ProductDTO productDTO) {
 		return productService.save(productDTO);
 	}
-	
-	@PatchMapping("/{id}/upload-photo")
-	@ResponseStatus(HttpStatus.OK)
-	public ProductUploadPhotoDTO uploadPhoto(@RequestParam("file") MultipartFile file, @PathVariable Long id) {
-		
-		return productService.uploadPhoto(file, id);
-
-	}
-	
 	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
@@ -85,12 +65,6 @@ public class ProductController {
 		productService.delete(id);
 	}
 	
-	@DeleteMapping("/delete/maior-que/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteMaiorQue (@PathVariable Long id) {
-		productService.deleteMaiorQue(id);
-	}
-
 	@PatchMapping("/{id}")
 	public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
 		return productService.update(id, productDTO);
@@ -101,25 +75,4 @@ public class ProductController {
 		return productService.findAllPageable(pageable);
 	}
 	
-	@PostMapping("/report-pdf")
-	public ResponseEntity<?> reportPdf(@RequestBody ProductReportRequestDTO productDTO) {
-		
-		List<ProductDTO> products = productService.findProductsReportPdf(productDTO);
-		
-		try {
-			
-	        ByteArrayOutputStream pdfStream = productService.geraReportPdf(products);
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.setContentType(MediaType.APPLICATION_PDF);
-	        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=products.pdf");
-	        headers.setContentLength(pdfStream.size());
-	        
-	        return new ResponseEntity<>(pdfStream.toByteArray(), headers, HttpStatus.OK);
-	        
-		} catch (DocumentException | IOException | URISyntaxException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
-		}	
-		
-	}
 }
