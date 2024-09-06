@@ -23,75 +23,64 @@ import java.util.List;
 @RequestMapping("/product")
 public class ProductController {
 
-	@Autowired
-	private ProductService productService;
-	
-	@GetMapping
-	public List<ProductDTO> getAll() {
-		return productService.findAll();
-	}
-	
-	@GetMapping("/{id}")
-	public ProductDTO findById(@PathVariable Long id) {
-		return productService.findById(id);
-	}
-	
-	@GetMapping("/category/{categoryId}")
-	public List<ProductDTO> findProductsByCategory(@PathVariable Long categoryId) {
-		return productService.findByCategory(categoryId);
-	}
-	
-	@GetMapping("/{productIdentifier}/identifier")
-	public ProductDTO findByIdentifier(@PathVariable String productIdentifier) {
-		return productService.findByIdentifier(productIdentifier);
-	}
-	
-	@GetMapping("/search")
-	public List<ProductDTO> findByNone(@RequestParam(name = "nome") String nome) {
-		return productService.findByNome(nome);
-	}
-	
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public ProductDTO save(@RequestBody @Valid ProductDTO productDTO) {
-		return productService.save(productDTO);
-	}
-	
-	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete (@PathVariable Long id) {
-		productService.delete(id);
-	}
-	
-	@PatchMapping("/{id}")
-	public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
-		return productService.update(id, productDTO);
-	}
-	
-	@GetMapping("/pageable")
-	public Page<ProductDTO> findAllPageable(Pageable pageable) {
-		return productService.findAllPageable(pageable);
-	}
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping
+    public List<ProductDTO> getAll() {
+        return productService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ProductDTO findById(@PathVariable Long id) {
+        return productService.findById(id);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public List<ProductDTO> findProductsByCategory(@PathVariable Long categoryId) {
+        return productService.findByCategory(categoryId);
+    }
+
+    @GetMapping("/{productIdentifier}/identifier")
+    public ProductDTO findByIdentifier(@PathVariable String productIdentifier) {
+        return productService.findByIdentifier(productIdentifier);
+    }
+
+    @GetMapping("/search")
+    public List<ProductDTO> findByNone(@RequestParam(name = "nome") String nome) {
+        return productService.findByNome(nome);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductDTO save(@RequestBody @Valid ProductDTO productDTO) {
+        return productService.save(productDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        productService.delete(id);
+    }
+
+    @PatchMapping("/{id}")
+    public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
+        return productService.update(id, productDTO);
+    }
+
+    @GetMapping("/pageable")
+    public Page<ProductDTO> findAllPageable(Pageable pageable) {
+        return productService.findAllPageable(pageable);
+    }
 
 
-	@PostMapping("/report-pdf")
-	public ResponseEntity<?> reportPdf(@RequestBody ProductReportRequestDTO productDTO) {
-
-		List<ProductDTO> products = productService.findProductsReportPdf(productDTO);
-
-		try {
-
-			ByteArrayOutputStream pdfStream = productService.geraReportPdf(products);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_PDF);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=products.pdf");
-			headers.setContentLength(pdfStream.size());
-
-			return new ResponseEntity<>(pdfStream.toByteArray(), headers, HttpStatus.OK);
-
-		} catch (DocumentException | IOException | URISyntaxException e) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
-		}
-
-	}
+    @PostMapping("/report-pdf")
+    public ResponseEntity<?> reportPdf(@RequestBody ProductReportRequestDTO productDTO) {
+        ByteArrayOutputStream pdfStream = productService.geraReportPdf(productDTO);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=products.pdf");
+        headers.setContentLength(pdfStream.size());
+        return new ResponseEntity<>(pdfStream.toByteArray(), headers, HttpStatus.OK);
+    }
 }

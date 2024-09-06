@@ -2,6 +2,7 @@ package br.com.daciosoftware.shop.product.service;
 
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductIdentifieViolationException;
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
+import br.com.daciosoftware.shop.exceptions.exceptions.ReportPdfException;
 import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductReportRequestDTO;
@@ -182,32 +183,36 @@ public class ProductService {
 		return products.stream().map(ProductDTO::convert).collect(Collectors.toList());
 	}
 
-	public ByteArrayOutputStream geraReportPdf(List<ProductDTO> products) throws DocumentException, URISyntaxException, IOException {
+	public ByteArrayOutputStream geraReportPdf(ProductReportRequestDTO productDTO) {
 
 		Document document = new Document();
 		document.setMargins(20, 20, 30, 30);
-
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		List<ProductDTO> products = findProductsReportPdf(productDTO);
 
-		PdfWriter.getInstance(document, outputStream);
+		try {
+			PdfWriter.getInstance(document, outputStream);
+			document.open();
+			addHeaderReport(document);
 
-		document.open();
+			PdfPTable table = new PdfPTable(4);
+			table.setWidthPercentage(100);
+			float[] widths = {35, 35, 15, 15};
+			table.setWidths(widths);
 
-		addHeaderReport(document);
+			addTableHeader(table);
+			addRows(table, products);
+			addFooterRows(table, products);
+			document.add(table);
 
-		PdfPTable table = new PdfPTable(4);
-		table.setWidthPercentage(100);
-		float[] widths = {35, 35, 15, 15};
-		table.setWidths(widths);
+			document.close();
 
-		addTableHeader(table);
-		addRows(table, products);
-		addFooterRows(table, products);
-		document.add(table);
+			return outputStream;
 
-		document.close();
+		} catch (DocumentException | IOException | URISyntaxException e) {
 
-		return outputStream;
+			throw new ReportPdfException();
+		}
 	}
 
 	private void addHeaderReport(Document document) throws URISyntaxException, IOException, DocumentException {
@@ -277,13 +282,18 @@ public class ProductService {
 	}
 
 	private Optional<Image> getLogo() throws URISyntaxException, BadElementException, IOException {
-		URL logoResource = ClassLoader.getSystemResource("static/images/logo.png");
+		URL logoResource = this.getClass().getClassLoader().getResource("static/images/logo.png");
 		if (logoResource == null) {
 			return Optional.empty();
 		}
-		Path path = Paths.get(logoResource.toURI());
-		Image img = Image.getInstance(path.toAbsolutePath().toString());
-		img.scalePercent(SCALE_PERC_LOGO);
-		return Optional.of(img);
+		try {
+			Path path = Paths.get(logoResource.toURI());
+			System.out.println(path.toString());
+			Image img = Image.getInstance(path.toString());
+			img.scalePercent(SCALE_PERC_LOGO);
+			return Optional.of(img);
+		} catch (Exception e) {
+			return Optional.empty();
+		}
 	}
 }
