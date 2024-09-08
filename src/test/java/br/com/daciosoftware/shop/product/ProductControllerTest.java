@@ -1,10 +1,10 @@
 package br.com.daciosoftware.shop.product;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
-import java.nio.charset.StandardCharsets;
-
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
+import br.com.daciosoftware.shop.product.controller.ProductController;
+import br.com.daciosoftware.shop.product.service.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,12 +21,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
 
-import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
-import br.com.daciosoftware.shop.product.controller.ProductController;
-import br.com.daciosoftware.shop.product.service.ProductService;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductControllerTest {

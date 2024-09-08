@@ -1,14 +1,13 @@
 package br.com.daciosoftware.shop.product.controller;
 
-import java.util.List;
-
+import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
+import br.com.daciosoftware.shop.product.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
-import br.com.daciosoftware.shop.product.service.CategoryService;
-import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/category")

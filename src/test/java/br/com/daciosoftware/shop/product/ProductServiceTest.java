@@ -1,9 +1,12 @@
 package br.com.daciosoftware.shop.product;
 
-import java.util.List;
-import java.util.Optional;
-
+import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
+import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.modelos.entity.product.Category;
+import br.com.daciosoftware.shop.modelos.entity.product.Product;
+import br.com.daciosoftware.shop.product.repository.ProductRepository;
+import br.com.daciosoftware.shop.product.service.CategoryService;
+import br.com.daciosoftware.shop.product.service.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,13 +15,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
-import br.com.daciosoftware.shop.modelos.dto.product.CategoryDTO;
-import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
-import br.com.daciosoftware.shop.modelos.entity.product.Product;
-import br.com.daciosoftware.shop.product.repository.ProductRepository;
-import br.com.daciosoftware.shop.product.service.CategoryService;
-import br.com.daciosoftware.shop.product.service.ProductService;
+import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {

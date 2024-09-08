@@ -3,7 +3,6 @@ package br.com.daciosoftware.shop.product.controller;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductReportRequestDTO;
 import br.com.daciosoftware.shop.product.service.ProductService;
-import com.itextpdf.text.DocumentException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController

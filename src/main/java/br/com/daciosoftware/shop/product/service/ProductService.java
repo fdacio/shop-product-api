@@ -25,8 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +34,7 @@ import java.util.stream.Stream;
 @Service
 public class ProductService {
 
-	private static final int SCALE_PERC_LOGO = 20;
+	private static final int SCALE_PERC_LOGO = 50;
 
 	@Autowired
 	private ProductRepository productRepository;
@@ -281,15 +279,13 @@ public class ProductService {
 		table.addCell(pdfPCellValorTotal);
 	}
 
-	private Optional<Image> getLogo() throws URISyntaxException, BadElementException, IOException {
+	private Optional<Image> getLogo()  {
 		URL logoResource = this.getClass().getClassLoader().getResource("static/images/logo.png");
 		if (logoResource == null) {
 			return Optional.empty();
 		}
 		try {
-			Path path = Paths.get(logoResource.toURI());
-			System.out.println(path.toString());
-			Image img = Image.getInstance(path.toString());
+			Image img = Image.getInstance(logoResource.toURI().toString());
 			img.scalePercent(SCALE_PERC_LOGO);
 			return Optional.of(img);
 		} catch (Exception e) {

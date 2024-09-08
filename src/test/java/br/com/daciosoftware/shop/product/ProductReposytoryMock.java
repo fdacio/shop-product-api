@@ -1,14 +1,14 @@
 package br.com.daciosoftware.shop.product;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import br.com.daciosoftware.shop.exceptions.exceptions.ProductNotFoundException;
 import br.com.daciosoftware.shop.modelos.dto.product.ProductDTO;
 import br.com.daciosoftware.shop.modelos.entity.product.Category;
 import br.com.daciosoftware.shop.modelos.entity.product.Product;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ProductReposytoryMock {
 
